@@ -1,0 +1,5 @@
+{
+    "vim.useSystemClipboard": true,
+    "files.autoSave": "afterDelay"
+
+}

@@ -122,7 +122,51 @@ def test_snark_paper():
 
     print(f"\n[Summary] ZKLP Hex ZKP: Total time = {total_time:.2f}s | Avg = {total_time/50:.2f}s")
 
+def test_angle_lookup_proof():
+
+    center_lat = 40.37
+    center_lon = -105.21
+    total_time = 0.0
+    num_passed = 0
+
+    print(f"[Testing ZKP angle lookup against center: ({center_lat}, {center_lon})]")
+
+    for i in range(50):
+        lat = center_lat + 0.0001 * i
+        lon = center_lon + 0.0001 * i
+
+        args = [
+            "python", "snark_irregular.py",  # using lut
+            "--user-lat", f"{lat:.6f}",
+            "--user-lon", f"{lon:.6f}",
+            "--center-lat", f"{center_lat:.6f}",
+            "--center-lon", f"{center_lon:.6f}",
+        ]
+
+        print(f"\n[Run {i+1}] User location: ({lat:.6f}, {lon:.6f})")
+
+        start = time.perf_counter()
+        try:
+            result = subprocess.run(args, capture_output=True, text=True, check=True)
+            output = result.stdout
+            num_passed += 1
+        except subprocess.CalledProcessError as e:
+            output = e.stderr
+        end = time.perf_counter()
+
+        elapsed = end - start
+        total_time += elapsed
+
+        print(f"Time: {elapsed:.3f}s\n{output.strip()}")
+
+    print(f"\n[Summary] ZKLP Angle Lookup ZKP:")
+    print(f"  Total time: {total_time:.2f} seconds")
+    print(f"  Avg time per run: {total_time / 50:.3f} seconds")
+    print(f"  Passed: {num_passed} / 50")
+
+
 if __name__ == "__main__":
     test_snark_h3()
     test_haversine_distance()
     test_snark_paper()
+    test_angle_lookup_proof()
